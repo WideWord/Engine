@@ -1,0 +1,113 @@
+#include "math3d.h"
+#include "math.h"
+
+using namespace math3d;
+
+Vector3::Vector3() {
+	x = 0;
+	y = 0;
+	z = 0;
+}
+
+Vector3::Vector3(float x, float y, float z) {
+	this->x = x;
+	this->y = y;
+	this->z = z;
+}
+
+void Vector3::operator+=(Vector3& that) {
+	x += that.x;
+	y += that.y;
+	z += that.z;
+}
+
+void Vector3::operator-=(Vector3& that) {
+	x -= that.x;
+	y -= that.y;
+	z -= that.z;
+}
+
+void Vector3::operator*=(float t) {
+	x *= t;
+	y *= t;
+	z *= t;
+}
+
+void Vector3::operator/=(float t) {
+	x /= t;
+	y /= t;
+	z /= t;
+}
+
+Quaternion::Quaternion() {
+	x = 0;
+	y = 0;
+	z = 0;
+	w = 0;
+}
+
+Matrix4::Matrix4 () {
+	mtx = new float[16];
+}
+
+Matrix4::~Matrix4 () {
+	delete mtx;
+}
+
+Matrix4::Matrix4 (const Matrix4& other) {
+	mtx = new float[16];
+	for (unsigned register char i = 0; i < 16; ++i) {
+		mtx[i] = other.mtx[i];
+	}
+}
+
+float& Matrix4::operator[](int idx) {
+	return mtx[idx];
+}
+
+void Matrix4::operator*=(Matrix4& other) {
+	float M[16];
+        M[ 0] = mtx[ 0] * other[ 0] + mtx[ 1] * other[ 4] + mtx[ 2] * other[ 8] + mtx[ 3] * other[12];
+        M[ 1] = mtx[ 0] * other[ 1] + mtx[ 1] * other[ 5] + mtx[ 2] * other[ 9] + mtx[ 3] * other[13];
+        M[ 2] = mtx[ 0] * other[ 2] + mtx[ 1] * other[ 6] + mtx[ 2] * other[10] + mtx[ 3] * other[14];
+        M[ 3] = mtx[ 0] * other[ 3] + mtx[ 1] * other[ 7] + mtx[ 2] * other[11] + mtx[ 3] * other[15];
+        M[ 4] = mtx[ 4] * other[ 0] + mtx[ 5] * other[ 4] + mtx[ 6] * other[ 8] + mtx[ 7] * other[12];
+        M[ 5] = mtx[ 4] * other[ 1] + mtx[ 5] * other[ 5] + mtx[ 6] * other[ 9] + mtx[ 7] * other[13];
+        M[ 6] = mtx[ 4] * other[ 2] + mtx[ 5] * other[ 6] + mtx[ 6] * other[10] + mtx[ 7] * other[14];
+        M[ 7] = mtx[ 4] * other[ 3] + mtx[ 5] * other[ 7] + mtx[ 6] * other[11] + mtx[ 7] * other[15];
+        M[ 8] = mtx[ 8] * other[ 0] + mtx[ 9] * other[ 4] + mtx[10] * other[ 8] + mtx[11] * other[12];
+        M[ 9] = mtx[ 8] * other[ 1] + mtx[ 9] * other[ 5] + mtx[10] * other[ 9] + mtx[11] * other[13];
+        M[10] = mtx[ 8] * other[ 2] + mtx[ 9] * other[ 6] + mtx[10] * other[10] + mtx[11] * other[14];
+        M[11] = mtx[ 8] * other[ 3] + mtx[ 9] * other[ 7] + mtx[10] * other[11] + mtx[11] * other[15];
+        M[12] = mtx[12] * other[ 0] + mtx[13] * other[ 4] + mtx[14] * other[ 8] + mtx[15] * other[12];
+        M[13] = mtx[12] * other[ 1] + mtx[13] * other[ 5] + mtx[14] * other[ 9] + mtx[15] * other[13];
+        M[14] = mtx[12] * other[ 2] + mtx[13] * other[ 6] + mtx[14] * other[10] + mtx[15] * other[14];
+        M[15] = mtx[12] * other[ 3] + mtx[13] * other[ 7] + mtx[14] * other[11] + mtx[15] * other[15];
+	for (unsigned register char i = 0; i < 16; ++i) {
+		mtx[i] = M[i];
+	}
+}
+
+void Matrix4::setPerspective ( float fovy, float aspect, float znear, float zfar) {
+	    // fovy передается в градусах - сконвертируем его в радианы
+        float f = 1 / tanf(fovy * M_PI / 360),
+              A = (zfar + znear) / (znear - zfar),
+              B = (2 * zfar * znear) / (znear - zfar);
+
+        mtx[ 0] = f / aspect; mtx[ 1] =  0; mtx[ 2] =  0; mtx[ 3] =  0;
+        mtx[ 4] = 0;          mtx[ 5] =  f; mtx[ 6] =  0; mtx[ 7] =  0;
+        mtx[ 8] = 0;          mtx[ 9] =  0; mtx[10] =  A; mtx[11] =  B;
+        mtx[12] = 0;          mtx[13] =  0; mtx[14] = -1; mtx[15] =  0;
+}
+
+void Matrix4::setTranslation(Vector3& vec) {
+		mtx[ 0] = 1; mtx[ 1] = 0; mtx[ 2] = 0; mtx[ 3] = vec.x;
+        mtx[ 4] = 0; mtx[ 5] = 1; mtx[ 6] = 0; mtx[ 7] = vec.y;
+        mtx[ 8] = 0; mtx[ 9] = 0; mtx[10] = 1; mtx[11] = vec.z;
+        mtx[12] = 0; mtx[13] = 0; mtx[14] = 0; mtx[15] = 1;
+}
+
+float* Matrix4::getPtr() {
+	return mtx;
+}
+
