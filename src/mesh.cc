@@ -25,6 +25,8 @@ Mesh::Mesh(MeshData& dat) {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, dat.faces * sizeof(unsigned) * 3, dat.ind, GL_STATIC_DRAW);
 	
 	this->faces = dat.faces;
+	
+	material = nullptr;
 }
 
 Mesh::~Mesh () {

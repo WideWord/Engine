@@ -12,6 +12,28 @@ using namespace scene;
 #include "GL/glfw.h"
 #include <cstring>
 
+unsigned createShader (const char* VertexSource, const char* FragmentSource) {
+	unsigned Vertex, Fragment,Shader, len;
+		
+	Shader = glCreateProgram();
+	Vertex = glCreateShader(GL_VERTEX_SHADER);
+	Fragment =  glCreateShader(GL_FRAGMENT_SHADER);
+	
+	len = strlen(VertexSource);
+	glShaderSource(Vertex, 1, (const GLchar**)&VertexSource, (const GLint*)&len);
+	glCompileShader(Vertex);
+	
+	len = strlen(FragmentSource);
+	glShaderSource(Fragment, 1, (const GLchar**)&FragmentSource, (const GLint*)&len);
+	glCompileShader(Fragment);
+	
+	glAttachShader(Shader, Vertex);
+	glAttachShader(Shader, Fragment);
+	
+	glLinkProgram(Shader);
+	return Shader;
+}
+
 Renderer::Renderer(RenderWindow* wnd) : gl_version(_gl_version) {
 	
 	glewInit();
@@ -47,29 +69,14 @@ Renderer::Renderer(RenderWindow* wnd) : gl_version(_gl_version) {
 	
 	
 	// создаём шейдеры
+	shader[0] = createShader (
+	"#version 330 core\nuniform mat4 modelViewProjectionMatrix;in vec3 position;void main(void){gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);}",
+	"#version 330 core\nout vec4 color;void main(void){color = vec4(0,0,1,1);}");
 	
-	unsigned nolightVertex, nolightFragment, len;
-	const char* nolightVertexSource = "#version 330 core\nuniform mat4 modelViewProjectionMatrix;in vec3 position;void main(void){gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);}";
-	
-	const char* nolightFragmentSource = "#version 330 core\nout vec4 color;void main(void){color = vec4(0,0,1,1);}";
-	
-	
-	nolightShader = glCreateProgram();
-	nolightVertex = glCreateShader(GL_VERTEX_SHADER);
-	nolightFragment =  glCreateShader(GL_FRAGMENT_SHADER);
-	
-	len = strlen(nolightVertexSource);
-	glShaderSource(nolightVertex, 1, (const GLchar**)&nolightVertexSource, (const GLint*)&len);
-	glCompileShader(nolightVertex);
-	
-	len = strlen(nolightFragmentSource);
-	glShaderSource(nolightFragment, 1, (const GLchar**)&nolightFragmentSource, (const GLint*)&len);
-	glCompileShader(nolightFragment);
-	
-	glAttachShader(nolightShader, nolightVertex);
-	glAttachShader(nolightShader, nolightFragment);
-	
-	glLinkProgram(nolightShader);
+	shader[MAT_DIFF_BIT] = createShader (
+	"#version 330 core\nuniform mat4 modelViewProjectionMatrix;in vec3 position;in vec2 texcoord;out vec2 fragTexcoord;void main(void){fragTexcoord = texcoord;gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);}",
+	"#version 330 core\nuniform sampler2D diffuseTexture;in vec2 fragTexcoord;out vec4 color;void main(void){color = texture(diffuseTexture, fragTexcoord);}");
+
 	
 	
 }
@@ -88,8 +95,18 @@ void Renderer::render () {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	// рендеринг без света, из точки наблюдения 0, 0, 0,  (камера будет потом)
-	glUseProgram(nolightShader);
 	
+	Camera* cam = nullptr;
+	Transform* camTransform = nullptr;
+	for (std::vector<Camera*>::iterator it = vCamera.begin(); it != vCamera.end(); ++it) {
+		if (dynamic_cast<RenderWindow*>((*it)->target) != nullptr) {
+			cam = *it;
+			camTransform = cam->gameObject->getComponent<Transform>();
+			break;
+		}
+	}
+	if (cam == nullptr)return;
+	glViewport(0,0,cam->vpw, cam->vph);
 	
 	
 	float aspectRatio = (float)wnd->w / (float)wnd->h;
@@ -101,22 +118,55 @@ void Renderer::render () {
 		if (transform == nullptr) throw "Transform not found (Renderer)";
 		
 			
-		GLint matrixLocation;
-		matrixLocation = glGetUniformLocation(nolightShader, "modelViewProjectionMatrix");
-		if (matrixLocation == -1)throw "error";
-		glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, projection.getPtr());
+		Matrix4 model(projection);
+		Matrix4 pos;
+		Matrix4 rot;
+	
+		Vector3 v(camTransform->pos);
+		Quaternion q(camTransform->rot);
+		v.invert();
+		q.invert();
+		pos.setTranslation(v);
+		rot.setRotation(q);
+		model *= rot;
+		model *= pos;
+		
+		pos.setTranslation(transform->pos);
+		rot.setRotation(transform->rot);
+		
+		model *= pos;
+		model *= rot;
+			
+		
+				
 		
 		for(std::vector<Mesh*>::iterator i = meshRenderer->meshes.begin(); i != meshRenderer->meshes.end(); ++i) {
 			Mesh* mesh = *i;
+			unsigned matType;
+			
+			if (mesh->material == nullptr) {
+				matType = 0;
+			} else {
+				matType = mesh->material->type;
+			}
+			
+			unsigned curShader = shader[matType];
+			glUseProgram(curShader);
+			
+			
+			GLint matrixLocation;
+			matrixLocation = glGetUniformLocation(curShader, "modelViewProjectionMatrix");
+			if (matrixLocation == -1)throw "error";
+			glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, model.getPtr());
 			
 			glBindVertexArray(mesh->vao);
 			glBindBuffer(GL_ARRAY_BUFFER, mesh->vbo[0]);
-				
-			GLint posLoc = glGetAttribLocation(nolightShader, "position");
+			
+			GLint posLoc = glGetAttribLocation(curShader, "position");
 			if (posLoc == -1)throw "error";
 			glVertexAttribPointer(posLoc, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
 		    glEnableVertexAttribArray(posLoc);
-		    
+		        
 		    glBindVertexArray(mesh->vao);
 		    
 		    glDrawElements(GL_TRIANGLES, mesh->faces * 3, GL_UNSIGNED_INT, NULL);
@@ -125,7 +175,12 @@ void Renderer::render () {
 	}
 	
 	vMeshRenderer.clear();
+	vCamera.clear();
 	wnd->swapBuffers();
 }
 
 Renderer* Renderer::singleton;
+
+void RenderTarget::_fn () {
+
+}

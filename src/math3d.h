@@ -13,6 +13,8 @@ namespace math3d {
 		void operator-= (Vector3& that);
 		void operator*= (float that);
 		void operator/= (float that);
+		void invert();
+		float length();
 	};
 
 	class ENGINE_API Quaternion {
@@ -20,9 +22,11 @@ namespace math3d {
 		Quaternion();
 		Quaternion(float x, float y, float z, float w);
 		float x, y, z, w;
+		void invert();
+		void normalize();
 	};
-
 	class ENGINE_API Matrix4 {
+
 	private:
 		float* mtx;
 	public:

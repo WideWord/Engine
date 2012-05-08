@@ -8,12 +8,16 @@
 
 namespace gfx {
 	
-	
+	class ENGINE_API RenderTarget {
+	protected:
+		virtual void _fn();
+	};
 	
 	class Renderer;
-	class ENGINE_API RenderWindow {
+	class ENGINE_API RenderWindow : public RenderTarget {
 	protected:
 		friend class Renderer;
+		friend class Camera;
 		unsigned w, h;
 	public:
 		RenderWindow(unsigned w, unsigned h, bool fullscreen);
@@ -23,13 +27,14 @@ namespace gfx {
 	}; 
 
 	class MeshRenderer;
+	class Camera;
 	class ENGINE_API Renderer {
 	private:
 		int _gl_version;
 		RenderWindow* wnd;
 		static Renderer* singleton;
 		
-		unsigned nolightShader;
+		unsigned shader[128];
 	public:
 		Renderer(RenderWindow* wnd);
 		~Renderer();
@@ -41,9 +46,28 @@ namespace gfx {
 		static Renderer* getSingleton();
 	protected:
 		friend class MeshRenderer;
+		friend class Camera;
 		std::vector<MeshRenderer*> vMeshRenderer;
+		std::vector<Camera*> vCamera;
 	};
 	
+	enum ImageDataFormat {
+		floatFormat,
+		BGR,
+		BGRA,
+		RGB,
+		RGBA		
+	};
+	
+	class ENGINE_API Texture2d : public RenderTarget {
+	public:
+		Texture2d(unsigned w, unsigned h, ImageDataFormat format, void* data);
+		~Texture2d();
+	protected:
+		unsigned id;
+		friend class Renderer;
+	};
+	Texture2d* loadTexture2d(const char* filename);
 	
 	struct ENGINE_API MeshData {
 		unsigned verts;
@@ -52,7 +76,7 @@ namespace gfx {
 		unsigned* ind;
 	};
 	
-	#define MAT_LIGHT_BIT			0
+	#define MAT_LIGHT_BIT			1
 	#define MAT_DIFF_BIT			2
 	#define MAT_BUMP_BIT			4
 	#define MAT_SPEC_BIT			8
@@ -65,6 +89,8 @@ namespace gfx {
 		unsigned type;
 		math3d::Vector3 color;
 		float alpha;
+		
+		Texture2d* diffuse;
 		
 	};
 	
@@ -85,6 +111,17 @@ namespace gfx {
 		//~MeshRenderer();
 		std::vector<Mesh*> meshes;
 		void update();
+	};
+	
+	class ENGINE_API Camera : public scene::Component {
+	public:
+		Camera(scene::GameObject* obj, RenderTarget* t);
+		~Camera();
+		void update();
+	protected:
+		friend class Renderer;
+		RenderTarget* target;
+		unsigned vpw, vph;
 	};
 	
 	

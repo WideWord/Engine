@@ -39,11 +39,35 @@ void Vector3::operator/=(float t) {
 	z /= t;
 }
 
+void Vector3::invert () {
+	x = -x;
+	y = -y;
+	z = -z;
+}
+
+float Vector3::length () {
+	return sqrt(x*x + y*y + z*z);
+}
+
 Quaternion::Quaternion() {
 	x = 0;
 	y = 0;
 	z = 0;
-	w = 0;
+	w = 1;
+}
+
+void Quaternion::invert () {
+	//x = -x;
+	//y = -y;
+	//z = -z;
+}
+
+void Quaternion::normalize () {
+	float t = sqrt(x*x+y*y+z*z+w*w);
+	w = w / t;
+	x = x /  t;
+	y = y / t;
+	z = z / t;
 }
 
 Matrix4::Matrix4 () {
@@ -113,7 +137,21 @@ void Matrix4::setTranslation(Vector3& vec) {
 }
 
 void Matrix4::setRotation(Quaternion& q) {
+	q.normalize();
+	mtx[0] = q.w;	mtx[1] = q.z;	mtx[2] = -q.y;	mtx[3] = q.x;
+	mtx[4] = -q.z;	mtx[5] = q.w;	mtx[6] = q.x;	mtx[7] = q.y;
+	mtx[8] = q.y;	mtx[9]=-q.x;	mtx[10]=q.w; 	mtx[11]=q.z;
+	mtx[12]=-q.x;	mtx[13]=-q.y;	mtx[14]=-q.z;	mtx[15]=q.w;
+
+	Matrix4 m;
 	
+	
+	m[0] = q.w;		m[1] = q.z;		m[2] = -q.y;	m[3] = q.x;
+	m[4] = -q.z;	m[5] = q.w;		m[6] = q.x;		m[7] = -q.y;
+	m[8] = q.y;		m[9]=-q.x;		m[10]=q.w; 		m[11]=-q.z;
+	m[12]=q.x;		m[13]=q.y;		m[14]=q.z;		m[15]=q.w;
+	
+	(*this)*= m;
 }
 
 float* Matrix4::getPtr() {
