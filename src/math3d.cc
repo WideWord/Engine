@@ -48,6 +48,11 @@ Quaternion::Quaternion() {
 
 Matrix4::Matrix4 () {
 	mtx = new float[16];
+	
+	mtx[0] = 1;		mtx[1] = 0; 	mtx[2] = 0; 	mtx[3] = 0;
+	mtx[4] = 0;		mtx[5] = 1; 	mtx[6] = 0; 	mtx[7] = 0;
+	mtx[8] = 0;		mtx[9] = 0; 	mtx[10] = 1; 	mtx[11] = 0;
+	mtx[12] = 0;	mtx[13] = 0; 	mtx[14] = 0; 	mtx[15] = 1;
 }
 
 Matrix4::~Matrix4 () {
@@ -90,14 +95,14 @@ void Matrix4::operator*=(Matrix4& other) {
 
 void Matrix4::setPerspective ( float fovy, float aspect, float znear, float zfar) {
 	    // fovy передается в градусах - сконвертируем его в радианы
-        float f = 1 / tanf(fovy * M_PI / 360),
+        float f = 1.0f / tanf(fovy * M_PI / 360.0f),
               A = (zfar + znear) / (znear - zfar),
-              B = (2 * zfar * znear) / (znear - zfar);
+              B = (2.0f * zfar * znear) / (znear - zfar);
 
         mtx[ 0] = f / aspect; mtx[ 1] =  0; mtx[ 2] =  0; mtx[ 3] =  0;
         mtx[ 4] = 0;          mtx[ 5] =  f; mtx[ 6] =  0; mtx[ 7] =  0;
         mtx[ 8] = 0;          mtx[ 9] =  0; mtx[10] =  A; mtx[11] =  B;
-        mtx[12] = 0;          mtx[13] =  0; mtx[14] = -1; mtx[15] =  0;
+        mtx[12] = 0;          mtx[13] =  0; mtx[14] = -1.0f; mtx[15] =  0;
 }
 
 void Matrix4::setTranslation(Vector3& vec) {
@@ -105,6 +110,10 @@ void Matrix4::setTranslation(Vector3& vec) {
         mtx[ 4] = 0; mtx[ 5] = 1; mtx[ 6] = 0; mtx[ 7] = vec.y;
         mtx[ 8] = 0; mtx[ 9] = 0; mtx[10] = 1; mtx[11] = vec.z;
         mtx[12] = 0; mtx[13] = 0; mtx[14] = 0; mtx[15] = 1;
+}
+
+void Matrix4::setRotation(Quaternion& q) {
+	
 }
 
 float* Matrix4::getPtr() {

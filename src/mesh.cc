@@ -21,8 +21,10 @@ Mesh::Mesh(MeshData& dat) {
 	glBufferData(GL_ARRAY_BUFFER, dat.verts * sizeof(float) * 3, dat.nor, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
 	glBufferData(GL_ARRAY_BUFFER, dat.verts * sizeof(float) * 2, dat.tex, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo[3]);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[3]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, dat.faces * sizeof(unsigned) * 3, dat.ind, GL_STATIC_DRAW);
+	
+	this->faces = dat.faces;
 }
 
 Mesh::~Mesh () {

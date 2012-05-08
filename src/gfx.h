@@ -5,38 +5,43 @@
 #include "scene.h"
 #include <vector>
 
-namespace scene {
-	class Scene;
-}
 
 namespace gfx {
 	
 	
+	
+	class Renderer;
 	class ENGINE_API RenderWindow {
 	protected:
+		friend class Renderer;
 		unsigned w, h;
 	public:
 		RenderWindow(unsigned w, unsigned h, bool fullscreen);
 		~RenderWindow();
 		void swapBuffers();
-	}; 
 	
-	enum DrawType {
-		nolight,
-		light,
-		shadowmap
-	};
+	}; 
 
+	class MeshRenderer;
 	class ENGINE_API Renderer {
 	private:
 		int _gl_version;
 		RenderWindow* wnd;
+		static Renderer* singleton;
+		
+		unsigned nolightShader;
 	public:
 		Renderer(RenderWindow* wnd);
 		~Renderer();
 		const int& gl_version; // readonly
 		
-		void render (scene::Scene* scn);
+		void render ();
+		
+		
+		static Renderer* getSingleton();
+	protected:
+		friend class MeshRenderer;
+		std::vector<MeshRenderer*> vMeshRenderer;
 	};
 	
 	
@@ -67,13 +72,23 @@ namespace gfx {
 	protected:
 		friend class Renderer;
 		unsigned vao, vbo[4];
+		unsigned faces;
 	public:
 		Mesh(MeshData& dat);
 		virtual ~Mesh();
 		Material* material;
 	};
 	
+	class ENGINE_API MeshRenderer : public scene::Component {
+	public:
+		MeshRenderer(scene::GameObject* go);
+		//~MeshRenderer();
+		std::vector<Mesh*> meshes;
+		void update();
+	};
 	
+	
+
 }
 
 #endif 
