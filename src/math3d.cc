@@ -70,6 +70,27 @@ void Quaternion::normalize () {
 	z = z / t;
 }
 
+void Quaternion::setEuler(float heading, float attitude, float bank) {
+    float c1 = cosf(heading);
+    float s1 = sinf(heading);
+    float c2 = cosf(attitude);
+    float s2 = sinf(attitude);
+    float c3 = cosf(bank);
+    float s3 = sinf(bank);
+    w = sqrt(1.0 + c1 * c2 + c1*c3 - s1 * s2 * s3 + c2*c3) / 2.0;
+    float w4 = (4.0 * w);
+    x = (c2 * s3 + c1 * s3 + s1 * s2 * c3) / w4 ;
+    y = (s1 * c2 + s1 * c3 + c1 * s2 * s3) / w4 ;
+    z = (-s1 * s3 + c1 * s2 * c3 +s2) / w4 ;
+}
+
+void Quaternion::operator*= (Quaternion& s) {
+        x = y*s.z - s.y*z + w*s.x + s.w*x;
+        y = z*s.x - s.z*x + w*s.y + s.w*y;
+        z = x*s.y - s.x*y + w*s.z + s.w*z;
+        w = w*s.w - x*s.x - y*s.y - z*s.z;
+}
+
 Matrix4::Matrix4 () {
 	mtx = new float[16];
 	

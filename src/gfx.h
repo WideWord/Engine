@@ -78,11 +78,10 @@ namespace gfx {
 	
 	#define MAT_LIGHT_BIT			1
 	#define MAT_DIFF_BIT			2
-	#define MAT_BUMP_BIT			4
+	#define MAT_NOR_BIT				4
 	#define MAT_SPEC_BIT			8
-	#define MAT_FLAT_MIRROR_BIT		16
-	#define MAT_CUBEMAP_MIRROR_BIT	32
-
+	#define MAT_TBUMP_BIT			16
+	
 	
 	class ENGINE_API Material {
 	public:

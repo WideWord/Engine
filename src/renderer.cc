@@ -13,6 +13,7 @@ using namespace scene;
 #include <iostream>
 #include <cstring>
 
+
 unsigned createShader (const char* VertexSource, const char* FragmentSource) {
 	unsigned Vertex, Fragment,Shader, len;
 		
@@ -59,6 +60,7 @@ Renderer::Renderer(RenderWindow* wnd) : gl_version(_gl_version) {
 	
 	singleton = this;
 	
+	std::cout << "OpenGL version " << gl_version << "\n";
 	
 	glViewport(0,0,wnd->w, wnd->h);
 	glShadeModel( GL_SMOOTH );
@@ -68,15 +70,18 @@ Renderer::Renderer(RenderWindow* wnd) : gl_version(_gl_version) {
     glDepthFunc( GL_LEQUAL );      
          
 	
+	if (gl_version >= 330) {
+		// создаём шейдеры для opengl 33
+		shader[0] = createShader (
+		"#version 330 core\nuniform mat4 modelViewProjectionMatrix;in vec3 position;void main(void){gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);}",
+		"#version 330 core\nout vec4 color;void main(void){color = vec4(0,0,1,1);}");
 	
-	// создаём шейдеры
-	shader[0] = createShader (
-	"#version 330 core\nuniform mat4 modelViewProjectionMatrix;in vec3 position;void main(void){gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);}",
-	"#version 330 core\nout vec4 color;void main(void){color = vec4(0,0,1,1);}");
-	
-	shader[MAT_DIFF_BIT] = createShader (
-	"#version 330 core\nuniform mat4 modelViewProjectionMatrix;in vec3 position;in vec2 texcoord;out vec2 fragTexcoord;void main(void){gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);fragTexcoord = texcoord;}",
-	"#version 330 core\nuniform sampler2D diffuseTexture;in vec2 fragTexcoord;out vec4 color;void main(void){color = texture(diffuseTexture, fragTexcoord);}");
+		shader[MAT_DIFF_BIT] = createShader (
+		"#version 330 core\nuniform mat4 modelViewProjectionMatrix;in vec3 position;in vec2 texcoord;out vec2 fragTexcoord;void main(void){gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);fragTexcoord = texcoord;}",
+		"#version 330 core\nuniform sampler2D diffuseTexture;in vec2 fragTexcoord;out vec4 color;void main(void){color = texture(diffuseTexture, fragTexcoord);}");
+	} else {
+		std::cerr << "OpenGL >= 3.3 needed\n"; 
+	}
 
 	
 	
@@ -168,7 +173,6 @@ void Renderer::render () {
 		    glEnableVertexAttribArray(posLoc);
 		        
 		    if ((matType & MAT_DIFF_BIT) != 0) {
-		    	//glBindVertexArray(mesh->vao);
 				glBindBuffer(GL_ARRAY_BUFFER, mesh->vbo[2]);
 				GLint texLoc = glGetAttribLocation(curShader, "texcoord");
 				if (texLoc == -1)throw "error";
@@ -186,10 +190,9 @@ void Renderer::render () {
 				// укажем, что текстура привязана к текстурному юниту 0
 				if (textureLocation != -1)
 						glUniform1i(textureLocation , 0);
-				std::cout << "textured!\n";
 				
 		    }
-		    std::cout << (unsigned)(matType & MAT_DIFF_BIT);
+		    
 		    glBindVertexArray(mesh->vao);
 		    
 		    glDrawElements(GL_TRIANGLES, mesh->faces * 3, GL_UNSIGNED_INT, NULL);

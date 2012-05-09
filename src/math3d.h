@@ -24,6 +24,8 @@ namespace math3d {
 		float x, y, z, w;
 		void invert();
 		void normalize();
+		void setEuler(float heading, float attitude, float bank);
+		void operator*= (Quaternion& s);
 	};
 	class ENGINE_API Matrix4 {
 
