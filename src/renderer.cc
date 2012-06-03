@@ -10,6 +10,9 @@ using namespace quby;
 #include "GL/glfw.h"
 #include <iostream>
 #include <cstring>
+#include <string>
+#include <sstream>
+
 
 
 Renderer::Renderer(RenderWindow* wnd) : gl_version(_gl_version) {
@@ -151,6 +154,9 @@ void Renderer::render () {
 			unsigned renderPassLoc = glGetUniformLocation(curShader, "std_render_pass");
 			if (renderPassLoc != -1)glUniform1i(renderPassLoc, 0); // 0 - standart, 1 - for shadow map, 2 - for reflection map
 			
+			unsigned viewposLoc = glGetUniformLocation(curShader, "std_viewposition");
+			if (viewposLoc != -1)glUniform3f(viewposLoc, camTransform->pos.x,camTransform->pos.y,camTransform->pos.z);
+			
 			
 			GLint matrixLocation;
 			matrixLocation = glGetUniformLocation(curShader, "std_mvp");
@@ -186,7 +192,42 @@ void Renderer::render () {
 				mesh->material->color.x, 
 				mesh->material->color.y,
 				mesh->material->color.z, 
-				mesh->material->alpha);		    	
+				mesh->material->alpha);	
+				
+		
+		    // point lights
+		     GLint pointlightnumLoc = glGetUniformLocation(curShader, "std_pointlight_num");
+		     if (pointlightnumLoc != -1) {
+		     
+		        glUniform1i(pointlightnumLoc, vPointLight.size());
+		        
+		        int i = 0;
+		        for (std::vector<PointLight*>::iterator it = vPointLight.begin(); it != vPointLight.end(); ++it) {
+		            
+		            
+		                Vector3& tr = (*it)->gameObject->getComponent<Transform>()->pos;
+		                std::stringstream ss1;
+		                ss1 << "std_pointlight[" << i << "].position";
+		                glUniform3f(glGetUniformLocation(curShader, ss1.str().c_str() ),  tr.x, tr.y, tr.z);
+		            
+		            
+		            
+		                std::stringstream ss2;
+		                ss2 << "std_pointlight[" << i << "].color";
+		                glUniform3f(glGetUniformLocation(curShader, ss2.str().c_str() ),  (*it)->color.x, (*it)->color.y, (*it)->color.z);
+		            
+		            
+		            
+		                std::stringstream ss3;
+		                ss3 << "std_pointlight[" << i << "].radius";
+		                glUniform1f(glGetUniformLocation(curShader, ss3.str().c_str() ),  (*it)->radius);
+		            
+		            
+		            ++i;
+		        }
+
+		     
+		     }	
 	
 	
 	
@@ -199,6 +240,7 @@ void Renderer::render () {
 	
 	vMeshRenderer.clear();
 	vCamera.clear();
+	vPointLight.clear();
 	wnd->swapBuffers();
 }
 

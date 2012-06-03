@@ -29,6 +29,7 @@ namespace quby {
 
 	class MeshRenderer;
 	class Camera;
+	class PointLight;
 	class Material;
 	class ENGINE_API Renderer {
 	private:
@@ -47,8 +48,10 @@ namespace quby {
 	protected:
 		friend class MeshRenderer;
 		friend class Camera;
+		friend class PointLight;
 		std::vector<MeshRenderer*> vMeshRenderer;
 		std::vector<Camera*> vCamera;
+		std::vector<PointLight*> vPointLight;
 	};
 	
 	enum ImageDataFormat {
@@ -159,6 +162,16 @@ namespace quby {
 		unsigned vpw, vph;
 	};
 	
+	
+	class ENGINE_API PointLight : public Component {
+	public:
+	    PointLight(GameObject* go);
+	    void update();
+	    
+	    float radius;
+	    Vector3 color;
+	    
+	};
 	
 
 }
