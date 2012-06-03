@@ -40,6 +40,8 @@ namespace quby {
 	};
 	
 	class ENGINE_API Scene {
+	public:
+	    void update();
 	protected:
 		friend class GameObject;
 		std::list<GameObject*> gameObjects;
