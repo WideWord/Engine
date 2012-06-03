@@ -170,6 +170,7 @@ namespace quby {
 	    
 	    float radius;
 	    Vector3 color;
+	    Vector3 attenuation;
 	    
 	};
 	

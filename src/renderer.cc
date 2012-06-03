@@ -197,9 +197,9 @@ void Renderer::render () {
 		
 		    // point lights
 		     GLint pointlightnumLoc = glGetUniformLocation(curShader, "std_pointlight_num");
-		     if (pointlightnumLoc != -1) {
+		     if (pointlightnumLoc != -1) glUniform1i(pointlightnumLoc, vPointLight.size());
 		     
-		        glUniform1i(pointlightnumLoc, vPointLight.size());
+		        
 		        
 		        int i = 0;
 		        for (std::vector<PointLight*>::iterator it = vPointLight.begin(); it != vPointLight.end(); ++it) {
@@ -221,13 +221,17 @@ void Renderer::render () {
 		                std::stringstream ss3;
 		                ss3 << "std_pointlight[" << i << "].radius";
 		                glUniform1f(glGetUniformLocation(curShader, ss3.str().c_str() ),  (*it)->radius);
+		                
+		                std::stringstream ss4;
+		                ss4 << "std_pointlight[" << i << "].attenuation";
+		                glUniform3f(glGetUniformLocation(curShader, ss4.str().c_str() ),  (*it)->attenuation.x,  (*it)->attenuation.y,  (*it)->attenuation.z);
 		            
 		            
 		            ++i;
 		        }
 
 		     
-		     }	
+		     
 	
 	
 	
