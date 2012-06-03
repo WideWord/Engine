@@ -84,12 +84,12 @@ GameObject* ENGINE_API quby::loadModel(Scene* scn, const char* filename,Material
 			mdata.coor[t * 3 + 1] = aimesh->mVertices[t].y; 
 			mdata.coor[t * 3 + 2] = aimesh->mVertices[t].z; 
 			
-			/*mdata.nor[t * 3] = aimesh->mNormals[t].x; 
+			mdata.nor[t * 3] = aimesh->mNormals[t].x; 
 			mdata.nor[t * 3 + 1] = aimesh->mNormals[t].y; 
 			mdata.nor[t * 3 + 2] = aimesh->mNormals[t].z; 
 			
 			mdata.tex[t * 2] = aimesh->mTextureCoords[0][t].x; 
-			mdata.tex[t * 2 + 1] = aimesh->mTextureCoords[0][t].y; */
+			mdata.tex[t * 2 + 1] = aimesh->mTextureCoords[0][t].y;
 			
 		}
 		
