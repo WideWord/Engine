@@ -42,7 +42,7 @@ Renderer::Renderer(RenderWindow* wnd) : gl_version(_gl_version) {
 	
 	glViewport(0,0,wnd->w, wnd->h);
 	glShadeModel( GL_SMOOTH );
-	glClearColor(1.0f, 0.0f, 0.0f, 0.0f); 
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); 
 	glClearDepth( 1.0f );             
     glEnable( GL_DEPTH_TEST );           
     glDepthFunc( GL_LEQUAL );      
@@ -165,6 +165,13 @@ void Renderer::render () {
 			    glVertexAttribPointer(posLoc, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
 		        glEnableVertexAttribArray(posLoc);
 		    }
+		        
+		    glBindBuffer(GL_ARRAY_BUFFER, mesh->vbo[1]);
+			GLint norLoc = glGetAttribLocation(curShader, "std_normal");
+			if (norLoc != -1) {
+			    glVertexAttribPointer(norLoc, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+			    glEnableVertexAttribArray(norLoc);
+			}
 		        
 			glBindBuffer(GL_ARRAY_BUFFER, mesh->vbo[2]);
 			GLint texLoc = glGetAttribLocation(curShader, "std_texture_coord");

@@ -119,10 +119,12 @@ namespace quby {
 		void setup();
 		
 		~Material();
-		
+				
 	protected:
 	    friend class Renderer;
 		std::vector<MaterialParam*> params;
+    private:
+        void checkAddParam(MaterialParam* mp);
 	};
 	
 	class ENGINE_API Mesh {

@@ -9,6 +9,19 @@ using namespace quby;
 #endif
 #include "GL/glfw.h"
 
+void Material::checkAddParam (MaterialParam* mp) {
+    for (std::vector<MaterialParam*>::iterator it = params.begin(); it != params.end(); ++it) {
+        MaterialParam* m = *it;
+        if (m->loc == mp->loc) {
+            *it = mp;
+            
+            if (m->type == vec3)delete m->data.vec3;
+            delete m;
+            return;
+        }
+    }
+    params.push_back(mp);
+}
 
 void Material::addParam(const char*  name, int param) {
 
@@ -17,7 +30,7 @@ void Material::addParam(const char*  name, int param) {
     m->loc = glGetUniformLocation(shader->id, name);
     m->data.ivalue = param;
     
-    params.push_back(m);
+    checkAddParam(m);
     
 }
 
@@ -28,7 +41,7 @@ void Material::addParam(const char* name, float param) {
     m->loc = glGetUniformLocation(shader->id, name);
     m->data.fvalue = param;
     
-    params.push_back(m);
+    checkAddParam(m);
     
 }
 
@@ -39,7 +52,7 @@ void Material::addParam(const char* name, Vector3& param) {
     m->loc = glGetUniformLocation(shader->id, name);
     m->data.vec3 = new Vector3(param);
     
-    params.push_back(m);
+    checkAddParam(m);
     
 }
 
@@ -50,7 +63,7 @@ void Material::addParam(const char* name, Texture2d* param) {
     m->loc = glGetUniformLocation(shader->id, name);
     m->data.tex2d = param;
     
-    params.push_back(m);
+    checkAddParam(m);
     
 }
 
