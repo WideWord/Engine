@@ -5,7 +5,7 @@
 #include <list>
 
 
-namespace scene {
+namespace quby {
 	
 	class GameObject;
 	class ENGINE_API Component {
@@ -48,8 +48,8 @@ namespace scene {
 	class ENGINE_API Transform : public Component {
 	public:
 		Transform(GameObject* go);
-		math3d::Vector3 pos;
-		math3d::Quaternion rot;
+		Vector3 pos;
+		Quaternion rot;
 	};
 	
 	

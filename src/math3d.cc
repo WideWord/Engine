@@ -1,7 +1,7 @@
 #include "math3d.h"
 #include "math.h"
 
-using namespace math3d;
+using namespace quby;
 
 Vector3::Vector3() {
 	x = 0;

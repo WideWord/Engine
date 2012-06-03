@@ -1,7 +1,7 @@
 #ifndef MATH3D_H
 #define MATH3D_H
 #include "platform.h"
-namespace math3d {
+namespace quby {
 	class ENGINE_API Vector3 {
 	public:
 		Vector3();
@@ -16,6 +16,7 @@ namespace math3d {
 		void invert();
 		float length();
 	};
+	
 
 	class ENGINE_API Quaternion {
 	public:

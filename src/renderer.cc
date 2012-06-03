@@ -1,7 +1,5 @@
 #include "gfx.h"
-using namespace gfx;
-using namespace math3d;
-using namespace scene;
+using namespace quby;
 
 #include "GL/glew.h"
 #ifdef WINDOWS
@@ -13,28 +11,6 @@ using namespace scene;
 #include <iostream>
 #include <cstring>
 
-
-unsigned createShader (const char* VertexSource, const char* FragmentSource) {
-	unsigned Vertex, Fragment,Shader, len;
-		
-	Shader = glCreateProgram();
-	Vertex = glCreateShader(GL_VERTEX_SHADER);
-	Fragment =  glCreateShader(GL_FRAGMENT_SHADER);
-	
-	len = strlen(VertexSource);
-	glShaderSource(Vertex, 1, (const GLchar**)&VertexSource, (const GLint*)&len);
-	glCompileShader(Vertex);
-	
-	len = strlen(FragmentSource);
-	glShaderSource(Fragment, 1, (const GLchar**)&FragmentSource, (const GLint*)&len);
-	glCompileShader(Fragment);
-	
-	glAttachShader(Shader, Vertex);
-	glAttachShader(Shader, Fragment);
-	
-	glLinkProgram(Shader);
-	return Shader;
-}
 
 Renderer::Renderer(RenderWindow* wnd) : gl_version(_gl_version) {
 	
@@ -62,6 +38,8 @@ Renderer::Renderer(RenderWindow* wnd) : gl_version(_gl_version) {
 	
 	std::cout << "OpenGL version " << gl_version << "\n";
 	
+	glDrawBuffer(GL_BACK);
+	
 	glViewport(0,0,wnd->w, wnd->h);
 	glShadeModel( GL_SMOOTH );
 	glClearColor(1.0f, 0.0f, 0.0f, 0.0f); 
@@ -70,18 +48,6 @@ Renderer::Renderer(RenderWindow* wnd) : gl_version(_gl_version) {
     glDepthFunc( GL_LEQUAL );      
          
 	
-	if (gl_version >= 330) {
-		// создаём шейдеры для opengl 33
-		shader[0] = createShader (
-		"#version 330 core\nuniform mat4 modelViewProjectionMatrix;in vec3 position;void main(void){gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);}",
-		"#version 330 core\nout vec4 color;void main(void){color = vec4(0,0,1,1);}");
-	
-		shader[MAT_DIFF_BIT] = createShader (
-		"#version 330 core\nuniform mat4 modelViewProjectionMatrix;in vec3 position;in vec2 texcoord;out vec2 fragTexcoord;void main(void){gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);fragTexcoord = texcoord;}",
-		"#version 330 core\nuniform sampler2D diffuseTexture;in vec2 fragTexcoord;out vec4 color;void main(void){color = texture(diffuseTexture, fragTexcoord);}");
-	} else {
-		std::cerr << "OpenGL >= 3.3 needed\n"; 
-	}
 
 	
 	
@@ -94,8 +60,8 @@ Renderer* Renderer::getSingleton() {
 Renderer::~Renderer() {
 }
 
-
 void Renderer::render () {
+	
 
 	Matrix4 projection;
 
@@ -116,7 +82,7 @@ void Renderer::render () {
 	
 	
 	float aspectRatio = (float)wnd->w / (float)wnd->h;
-	projection.setPerspective(60.0f, aspectRatio, 0.5f, 10.0f);
+	projection.setPerspective(60.0f, aspectRatio, 0.5f, 3000.0f);
 	
 	for (std::vector<MeshRenderer*>::iterator it = vMeshRenderer.begin(); it != vMeshRenderer.end(); ++it) {
 		MeshRenderer* meshRenderer = *it;
@@ -147,52 +113,52 @@ void Renderer::render () {
 		
 		for(std::vector<Mesh*>::iterator i = meshRenderer->meshes.begin(); i != meshRenderer->meshes.end(); ++i) {
 			Mesh* mesh = *i;
-			unsigned matType;
 			
+			unsigned curShader;
 			if (mesh->material == nullptr) {
-				matType = 0;
+				throw "material == nullptr";
 			} else {
-				matType = mesh->material->type;
+				curShader = mesh->material->shader->id;
 			}
 			
-			unsigned curShader = shader[matType];
+			
 			glUseProgram(curShader);
+			
+			unsigned renderPassLoc = glGetUniformLocation(curShader, "std_render_pass");
+			if (renderPassLoc != -1)glUniform1i(renderPassLoc, 0); // 0 - standart, 1 - for shadow map, 2 - for reflection map
 			
 			
 			GLint matrixLocation;
-			matrixLocation = glGetUniformLocation(curShader, "modelViewProjectionMatrix");
-			if (matrixLocation == -1)throw "error";
-			glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, model.getPtr());
+			matrixLocation = glGetUniformLocation(curShader, "std_mvp");
+			if (matrixLocation != -1)glUniformMatrix4fv(matrixLocation, 1, GL_TRUE, model.getPtr());
+			
 			
 			glBindVertexArray(mesh->vao);
 			glBindBuffer(GL_ARRAY_BUFFER, mesh->vbo[0]);
 			
-			GLint posLoc = glGetAttribLocation(curShader, "position");
-			if (posLoc == -1)throw "error";
-			glVertexAttribPointer(posLoc, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
-		    glEnableVertexAttribArray(posLoc);
-		        
-		    if ((matType & MAT_DIFF_BIT) != 0) {
-				glBindBuffer(GL_ARRAY_BUFFER, mesh->vbo[2]);
-				GLint texLoc = glGetAttribLocation(curShader, "texcoord");
-				if (texLoc == -1)throw "error";
-				glVertexAttribPointer(texLoc, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
-				glEnableVertexAttribArray(texLoc);
-				
-				
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, mesh->material->diffuse->id);
-				
-				GLint textureLocation = -1;
-
-				textureLocation = glGetUniformLocation(curShader, "diffuseTexture");
-
-				// укажем, что текстура привязана к текстурному юниту 0
-				if (textureLocation != -1)
-						glUniform1i(textureLocation , 0);
-				
+			GLint posLoc = glGetAttribLocation(curShader, "std_position");
+			if (posLoc != -1) { 
+			    glVertexAttribPointer(posLoc, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+		        glEnableVertexAttribArray(posLoc);
 		    }
-		    
+		        
+			glBindBuffer(GL_ARRAY_BUFFER, mesh->vbo[2]);
+			GLint texLoc = glGetAttribLocation(curShader, "std_texture_coord");
+			if (texLoc != -1) {
+			    glVertexAttribPointer(texLoc, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
+			    glEnableVertexAttribArray(texLoc);
+			}
+				
+				
+		   	GLint colorLoc = glGetUniformLocation(curShader, "std_color");
+			if (colorLoc != -1)glUniform4f(colorLoc, 
+				mesh->material->color.x, 
+				mesh->material->color.y,
+				mesh->material->color.z, 
+				mesh->material->alpha);		    	
+	
+	
+	
 		    glBindVertexArray(mesh->vao);
 		    
 		    glDrawElements(GL_TRIANGLES, mesh->faces * 3, GL_UNSIGNED_INT, NULL);

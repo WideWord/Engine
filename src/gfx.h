@@ -6,7 +6,7 @@
 #include <vector>
 
 
-namespace gfx {
+namespace quby {
 	
 	class ENGINE_API RenderTarget {
 	protected:
@@ -33,8 +33,6 @@ namespace gfx {
 		int _gl_version;
 		RenderWindow* wnd;
 		static Renderer* singleton;
-		
-		unsigned shader[128];
 	public:
 		Renderer(RenderWindow* wnd);
 		~Renderer();
@@ -67,7 +65,7 @@ namespace gfx {
 		unsigned id;
 		friend class Renderer;
 	};
-	Texture2d* loadTexture2d(const char* filename);
+	Texture2d* ENGINE_API loadTexture2d(const char* filename);
 	
 	struct ENGINE_API MeshData {
 		unsigned verts;
@@ -76,19 +74,22 @@ namespace gfx {
 		unsigned* ind;
 	};
 	
-	#define MAT_LIGHT_BIT			1
-	#define MAT_DIFF_BIT			2
-	#define MAT_NOR_BIT				4
-	#define MAT_SPEC_BIT			8
-	#define MAT_TBUMP_BIT			16
+	
+	class ENGINE_API Shader {
+	protected:
+	    friend class Renderer;
+	    unsigned id;
+    public:
+        Shader(const char* vertex,const  char* fragment);	   
+	};
+	
 	
 	
 	class ENGINE_API Material {
 	public:
-		unsigned type;
-		math3d::Vector3 color;
+	    Shader* shader;
+		Vector3 color;
 		float alpha;
-		
 		Texture2d* diffuse;
 		
 	};
@@ -104,17 +105,19 @@ namespace gfx {
 		Material* material;
 	};
 	
-	class ENGINE_API MeshRenderer : public scene::Component {
+	
+	class ENGINE_API MeshRenderer : public Component {
 	public:
-		MeshRenderer(scene::GameObject* go);
+		MeshRenderer(GameObject* go);
 		//~MeshRenderer();
 		std::vector<Mesh*> meshes;
 		void update();
 	};
+	GameObject* ENGINE_API loadModel(Scene* scn, const char* filename,Material** mats, unsigned mats_size);
 	
-	class ENGINE_API Camera : public scene::Component {
+	class ENGINE_API Camera : public Component {
 	public:
-		Camera(scene::GameObject* obj, RenderTarget* t);
+		Camera(GameObject* obj, RenderTarget* t);
 		~Camera();
 		void update();
 	protected:

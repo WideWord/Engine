@@ -1,6 +1,6 @@
 #include "scene.h"
 
-using namespace scene;
+using namespace quby;
 
 GameObject::GameObject (Scene* scn) : scene(scn) {
 	scn->gameObjects.push_back(this);

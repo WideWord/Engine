@@ -1,5 +1,5 @@
 #include "gfx.h"
-using namespace gfx;
+using namespace quby;
 
 #include "GL/glew.h"
 #ifdef WINDOWS

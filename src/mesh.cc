@@ -1,5 +1,5 @@
 #include "gfx.h"
-using namespace gfx;
+using namespace quby;
 
 #include "GL/glew.h"
 #ifdef WINDOWS
@@ -8,6 +8,11 @@ using namespace gfx;
 	#include "GL/glxew.h"
 #endif
 #include "GL/glfw.h"
+#include <assimp.h>
+#include <aiScene.h>
+#include <aiMesh.h>
+
+
 
 Mesh::Mesh(MeshData& dat) {
 	glGenVertexArrays(1, &vao);
@@ -33,3 +38,93 @@ Mesh::~Mesh () {
 	glDeleteBuffers(4, vbo);
 	glDeleteVertexArrays(1, &vao);
 }
+
+
+GameObject* ENGINE_API quby::loadModel(Scene* scn, const char* filename,Material** mats, unsigned mats_size) {
+	
+	
+	
+	const aiScene* scene = aiImportFile(filename, 0);
+	
+	if (!scene) return nullptr;
+	
+	GameObject* res = new GameObject(scn);
+	new Transform(res);
+	MeshRenderer* meshRenderer = new MeshRenderer(res);
+	
+	
+	
+	for (unsigned n = 0; n < scene->mNumMeshes; ++n) {
+		aiMesh* aimesh = scene->mMeshes[n];
+		
+		
+		MeshData mdata;
+		
+		mdata.verts = aimesh->mNumVertices;
+		mdata.coor = new float[mdata.verts*3];
+		mdata.nor = new float[mdata.verts*3];
+		mdata.tex = new float[mdata.verts*2];
+		
+		
+		unsigned tc = 0;
+		for (unsigned t = 0; t < aimesh->mNumFaces; ++t) {
+			if(aimesh->mFaces[t].mNumIndices == 3) {
+				tc += 1;
+			} else {
+				tc += 2;
+			}
+		}
+		
+		mdata.faces = tc;
+		mdata.ind = new unsigned[mdata.faces * 3];
+		
+		
+		for (unsigned t = 0; t < aimesh->mNumVertices; ++t) {
+			mdata.coor[t * 3] = aimesh->mVertices[t].x; 
+			mdata.coor[t * 3 + 1] = aimesh->mVertices[t].y; 
+			mdata.coor[t * 3 + 2] = aimesh->mVertices[t].z; 
+			
+			/*mdata.nor[t * 3] = aimesh->mNormals[t].x; 
+			mdata.nor[t * 3 + 1] = aimesh->mNormals[t].y; 
+			mdata.nor[t * 3 + 2] = aimesh->mNormals[t].z; 
+			
+			mdata.tex[t * 2] = aimesh->mTextureCoords[0][t].x; 
+			mdata.tex[t * 2 + 1] = aimesh->mTextureCoords[0][t].y; */
+			
+		}
+		
+		tc = 0;
+		for (unsigned t = 0; t < aimesh->mNumFaces; ++t) {
+			if(aimesh->mFaces[t].mNumIndices == 3) {
+				mdata.ind[tc] = aimesh->mFaces[t].mIndices[0];
+				mdata.ind[tc + 1] = aimesh->mFaces[t].mIndices[1];
+				mdata.ind[tc + 2] =	aimesh->mFaces[t].mIndices[2];
+				tc += 3;
+			} else {
+				mdata.ind[tc] = aimesh->mFaces[t].mIndices[0];
+				mdata.ind[tc + 1] = aimesh->mFaces[t].mIndices[1];
+				mdata.ind[tc + 2] =	aimesh->mFaces[t].mIndices[2];
+				mdata.ind[tc + 3] = aimesh->mFaces[t].mIndices[0];
+				mdata.ind[tc + 4] = aimesh->mFaces[t].mIndices[2];
+				mdata.ind[tc + 5] = aimesh->mFaces[t].mIndices[3];
+				tc += 4;
+			}
+		}
+		
+		
+		Mesh* mesh = new Mesh(mdata);
+		
+		if (aimesh->mMaterialIndex < mats_size) mesh->material = mats[aimesh->mMaterialIndex];
+		
+		meshRenderer->meshes.push_back(mesh);
+		
+		delete mdata.coor;
+		delete mdata.nor;
+		delete mdata.tex;
+		
+	}
+	
+	return res;
+}
+
+

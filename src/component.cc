@@ -1,6 +1,6 @@
 #include "scene.h"
 
-using namespace scene;
+using namespace quby;
 
 
 Component::Component (GameObject* go, bool need_update) : gameObject(go) {

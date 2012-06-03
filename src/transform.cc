@@ -1,6 +1,6 @@
 #include "scene.h"
 
-using namespace scene;
+using namespace quby;
 
 
 Transform::Transform (GameObject* go) : Component(go) {
