@@ -4,6 +4,7 @@
 #include "math3d.h"
 #include "scene.h"
 #include <vector>
+#include <string>
 
 
 namespace quby {
@@ -28,6 +29,7 @@ namespace quby {
 
 	class MeshRenderer;
 	class Camera;
+	class Material;
 	class ENGINE_API Renderer {
 	private:
 		int _gl_version;
@@ -78,20 +80,49 @@ namespace quby {
 	class ENGINE_API Shader {
 	protected:
 	    friend class Renderer;
+	    friend class Material;
 	    unsigned id;
     public:
         Shader(const char* vertex,const  char* fragment);	   
 	};
 	
 	
+	enum MaterialParamType {
+	    fvalue,
+	    ivalue,
+	    vec3,
+	    tex2d
+	};
 	
+	struct ENGINE_API MaterialParam {
+	    unsigned loc;
+	    MaterialParamType type;
+	    union {
+	        Vector3* vec3;
+	        Texture2d* tex2d;
+	        float fvalue;
+	        int ivalue;
+	    } data;
+	};
+
 	class ENGINE_API Material {
 	public:
 	    Shader* shader;
 		Vector3 color;
 		float alpha;
-		Texture2d* diffuse;
 		
+		void addParam(const char* name, int param);
+		void addParam(const char* name, float param);
+		void addParam(const char* name, Texture2d* param);
+		void addParam(const char* name, Vector3& param);
+		
+		void setup();
+		
+		~Material();
+		
+	protected:
+	    friend class Renderer;
+		std::vector<MaterialParam*> params;
 	};
 	
 	class ENGINE_API Mesh {

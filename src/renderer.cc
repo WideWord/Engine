@@ -123,6 +123,30 @@ void Renderer::render () {
 			
 			
 			glUseProgram(curShader);
+			unsigned curTex = 0;
+			std::vector<MaterialParam*>::iterator itend = mesh->material->params.end();
+			for (std::vector<MaterialParam*>::iterator it = mesh->material->params.begin(); it != itend; ++it) {
+                MaterialParam* m = *it;
+                
+                switch(m->type) {
+                    case ivalue:
+                        glUniform1i(m->loc, m->data.ivalue);
+                        break;
+                    case fvalue:
+                        glUniform1f(m->loc, m->data.fvalue);
+                        break;
+                    case vec3:
+                        glUniform3f(m->loc, m->data.vec3->x,m->data.vec3->y,m->data.vec3->z);
+                        break;
+                    case tex2d:
+                        glActiveTexture(GL_TEXTURE0 + curTex);
+                        glUniform1i(m->loc, curTex);
+                        ++curTex;
+                        glBindTexture(GL_TEXTURE_2D, m->data.tex2d->id);
+                        break;
+                
+                }
+            }
 			
 			unsigned renderPassLoc = glGetUniformLocation(curShader, "std_render_pass");
 			if (renderPassLoc != -1)glUniform1i(renderPassLoc, 0); // 0 - standart, 1 - for shadow map, 2 - for reflection map
