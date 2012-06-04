@@ -93,7 +93,9 @@ void Renderer::render () {
 		if (transform == nullptr) throw "Transform not found (Renderer)";
 		
 			
-		Matrix4 model(projection);
+		Matrix4 model;
+		Matrix4 view;
+		
 		Matrix4 pos;
 		Matrix4 rot;
 	
@@ -101,16 +103,26 @@ void Renderer::render () {
 		Quaternion q(camTransform->rot);
 		v.invert();
 		q.invert();
-		pos.setTranslation(v);
+		view.setTranslation(v);
 		rot.setRotation(q);
-		model *= rot;
-		model *= pos;
+		view *= rot;
 		
-		pos.setTranslation(transform->pos);
+		
 		rot.setRotation(transform->rot);
-		
-		model *= pos;
+		model.setTranslation(transform->pos);
 		model *= rot;
+		
+		Matrix4 viewProjection(projection);
+		viewProjection *= view;
+		
+		Matrix4 modelView(view);
+		modelView *= model;
+		
+		Matrix4 modelViewProjection(projection);
+		modelViewProjection *= view;
+		modelViewProjection *= model;
+		
+		
 					
 				
 		
@@ -160,7 +172,23 @@ void Renderer::render () {
 			
 			GLint matrixLocation;
 			matrixLocation = glGetUniformLocation(curShader, "std_mvp");
-			if (matrixLocation != -1)glUniformMatrix4fv(matrixLocation, 1, GL_TRUE, model.getPtr());
+			if (matrixLocation != -1)glUniformMatrix4fv(matrixLocation, 1, GL_TRUE, modelViewProjection.getPtr());
+			
+			GLint mvLocation;
+			mvLocation = glGetUniformLocation(curShader, "std_mv");
+			if (mvLocation != -1)glUniformMatrix4fv(mvLocation, 1, GL_TRUE, modelView.getPtr());
+			
+			GLint pLocation;
+			pLocation = glGetUniformLocation(curShader, "std_p");
+			if (pLocation != -1)glUniformMatrix4fv(pLocation, 1, GL_TRUE, projection.getPtr());
+			
+			GLint vpLocation;
+			vpLocation = glGetUniformLocation(curShader, "std_vp");
+			if (vpLocation != -1)glUniformMatrix4fv(vpLocation, 1, GL_TRUE, viewProjection.getPtr());
+			
+			GLint mLocation;
+			mLocation = glGetUniformLocation(curShader, "std_m");
+			if (mLocation != -1)glUniformMatrix4fv(mLocation, 1, GL_TRUE, model.getPtr());
 			
 			
 			glBindVertexArray(mesh->vao);
