@@ -12,6 +12,7 @@ using namespace quby;
 #include <cstring>
 #include <string>
 #include <sstream>
+#include <cmath>
 
 
 
@@ -220,16 +221,16 @@ void Renderer::render () {
 				
 		
 		    // point lights
-		     GLint pointlightnumLoc = glGetUniformLocation(curShader, "std_pointlight_num");
-		     if (pointlightnumLoc != -1) glUniform1i(pointlightnumLoc, vPointLight.size());
+		     
 		     
 		        
 		        
 		        int i = 0;
 		        for (std::vector<PointLight*>::iterator it = vPointLight.begin(); it != vPointLight.end(); ++it) {
-		            
-		            
-		                Vector3& tr = (*it)->gameObject->getComponent<Transform>()->pos;
+		            PointLight* light = *it;
+		            Vector3& tr = light->gameObject->getComponent<Transform>()->pos;
+		            if (sqrt((tr.x - transform->pos.x)*(tr.x - transform->pos.x) + (tr.y - transform->pos.y)*(tr.y - transform->pos.y) + (tr.z - transform->pos.z)*(tr.z - transform->pos.z)) < light->radius + mesh->radius) {
+		                
 		                std::stringstream ss1;
 		                ss1 << "std_pointlight[" << i << "].position";
 		                glUniform3f(glGetUniformLocation(curShader, ss1.str().c_str() ),  tr.x, tr.y, tr.z);
@@ -251,10 +252,12 @@ void Renderer::render () {
 		                glUniform3f(glGetUniformLocation(curShader, ss4.str().c_str() ),  (*it)->attenuation.x,  (*it)->attenuation.y,  (*it)->attenuation.z);
 		            
 		            
-		            ++i;
+		                ++i;
+		            }
 		        }
 
-		     
+		        GLint pointlightnumLoc = glGetUniformLocation(curShader, "std_pointlight_num");
+		        if (pointlightnumLoc != -1) glUniform1i(pointlightnumLoc, i);
 		     
 	
 	
