@@ -32,6 +32,9 @@ namespace quby {
 			}
 			return nullptr;
 		}
+		template<class T> inline T* get() {
+		    return getComponent<T>();
+		}
 		void update();
 		Scene* scene;
 	protected:
@@ -52,6 +55,7 @@ namespace quby {
 		Transform(GameObject* go);
 		Vector3 pos;
 		Quaternion rot;
+		
 	};
 	
 	

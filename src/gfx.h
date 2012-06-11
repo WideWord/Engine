@@ -129,11 +129,15 @@ namespace quby {
 	};
 	
 	class ENGINE_API Mesh {
+    private:
+        float _radius;
 	protected:
 		friend class Renderer;
 		unsigned vao, vbo[4];
 		unsigned faces;
+		
 	public:
+	    const float& radius;
 		Mesh(MeshData& dat);
 		virtual ~Mesh();
 		Material* material;
@@ -146,6 +150,10 @@ namespace quby {
 		//~MeshRenderer();
 		std::vector<Mesh*> meshes;
 		void update();
+	    void bake();
+	    const float& radius;
+	private:
+	    float _radius;
 	};
 	GameObject* ENGINE_API loadModel(Scene* scn, const char* filename,Material** mats, unsigned mats_size);
 	

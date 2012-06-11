@@ -9,12 +9,13 @@ using namespace quby;
 #endif
 #include "GL/glfw.h"
 #include <assimp.h>
+#include <cmath>
 #include <aiScene.h>
 #include <aiMesh.h>
 
 
 
-Mesh::Mesh(MeshData& dat) {
+Mesh::Mesh(MeshData& dat) : radius(_radius) {
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 	
@@ -30,6 +31,12 @@ Mesh::Mesh(MeshData& dat) {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, dat.faces * sizeof(unsigned) * 3, dat.ind, GL_STATIC_DRAW);
 	
 	this->faces = dat.faces;
+	
+	_radius = 0;
+	for(int i = 0; i < dat.verts; i++) {
+	    float len = sqrt(dat.coor[i * 3] * dat.coor[i * 3] + dat.coor[i * 3 + 1] * dat.coor[i * 3 + 1] + dat.coor[i * 3 + 2] * dat.coor[i * 3 + 2]); 
+	    if (len > _radius)_radius = len;
+	}
 	
 	material = nullptr;
 }
