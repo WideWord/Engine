@@ -134,7 +134,7 @@ void Renderer::render () {
 			if (mesh->material == nullptr) {
 				throw "material == nullptr";
 			} else {
-				curShader = mesh->material->shader->id;
+				curShader = mesh->material->shader;
 			}
 			
 			

@@ -80,14 +80,7 @@ namespace quby {
 	};
 	
 	
-	class ENGINE_API Shader {
-	protected:
-	    friend class Renderer;
-	    friend class Material;
-	    unsigned id;
-    public:
-        Shader(const char* vertex,const  char* fragment);	   
-	};
+
 	
 	
 	enum MaterialParamType {
@@ -110,8 +103,8 @@ namespace quby {
 
 	class ENGINE_API Material {
 	public:
-	    Shader* shader;
-		
+	    Material(const char* uniformDef, const char* fragment);
+	    
 		void addParam(const char* name, int param);
 		void addParam(const char* name, float param);
 		void addParam(const char* name, Texture2d* param);
@@ -126,6 +119,7 @@ namespace quby {
 		std::vector<MaterialParam*> params;
     private:
         void checkAddParam(MaterialParam* mp);
+        unsigned shader;
 	};
 	
 	class ENGINE_API Mesh {
