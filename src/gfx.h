@@ -111,8 +111,6 @@ namespace quby {
 	class ENGINE_API Material {
 	public:
 	    Shader* shader;
-		Vector3 color;
-		float alpha;
 		
 		void addParam(const char* name, int param);
 		void addParam(const char* name, float param);

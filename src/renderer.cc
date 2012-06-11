@@ -215,12 +215,8 @@ void Renderer::render () {
 			}
 				
 				
-		   	GLint colorLoc = glGetUniformLocation(curShader, "std_color");
-			if (colorLoc != -1)glUniform4f(colorLoc, 
-				mesh->material->color.x, 
-				mesh->material->color.y,
-				mesh->material->color.z, 
-				mesh->material->alpha);	
+		  
+				
 				
 		
 		    // point lights
