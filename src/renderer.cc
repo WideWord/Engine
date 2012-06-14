@@ -49,7 +49,9 @@ Renderer::Renderer(RenderWindow* wnd) : gl_version(_gl_version) {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); 
 	glClearDepth( 1.0f );             
     glEnable( GL_DEPTH_TEST );           
-    glDepthFunc( GL_LEQUAL );      
+    glDepthFunc( GL_LEQUAL );
+    glEnable(GL_CULL_FACE); 
+    glCullFace(GL_BACK);     
          
 	
 

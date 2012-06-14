@@ -124,6 +124,8 @@ GameObject* ENGINE_API quby::loadModel(Scene* scn, const char* filename,Material
 		if (aimesh->mMaterialIndex < mats_size) mesh->material = mats[aimesh->mMaterialIndex];
 		
 		meshRenderer->meshes.push_back(mesh);
+		meshRenderer->bake();
+		
 		
 		delete mdata.coor;
 		delete mdata.nor;
