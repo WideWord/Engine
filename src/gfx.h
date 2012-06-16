@@ -156,7 +156,7 @@ namespace quby {
 	    
 	
 	};
-	SuperMesh* ENGINE_API loadModel(Scene* scn, const char* filename,Material** mats, unsigned mats_size);
+	SuperMesh* ENGINE_API loadModel(const char* filename,Material** mats, unsigned mats_size);
 	
 	class ENGINE_API Camera : public Component {
 	public:

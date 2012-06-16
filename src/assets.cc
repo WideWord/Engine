@@ -9,7 +9,8 @@ using namespace std;
 Texture2d* Assets::getTexture2d (const char* name) {
     string filename(name);
     
-    for (vector<pair<string, Texture2d* > >::iterator it = textures.begin(); 
+    
+    for (auto it = textures.begin(); 
         it != textures.end();  ++it) {
    
         
@@ -26,5 +27,18 @@ Texture2d* Assets::getTexture2d (const char* name) {
     return result;
 }
 
-
-
+SuperMesh* Assets::getModel (const char* name) {
+    
+    for (auto it = superMeshes.begin(); it != superMeshes.end(); ++it) {
+        if (it->first.compare(name) == 0) {
+            return it->second;
+        }
+    }
+    
+    SuperMesh* result = loadModel(name, nullptr, 0);
+    
+    superMeshes.push_back(make_pair(string(name), result));
+    
+    return result;
+    
+}

@@ -59,7 +59,7 @@ void SuperMesh::bake () {
 }
 
 
-SuperMesh* ENGINE_API quby::loadModel(Scene* scn, const char* filename,Material** mats, unsigned mats_size) {
+SuperMesh* ENGINE_API quby::loadModel(const char* filename,Material** mats, unsigned mats_size) {
 	
 	
 	
