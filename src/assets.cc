@@ -3,6 +3,7 @@
 
 #include <iostream>
 
+
 using namespace quby;
 using namespace std;
 
@@ -36,6 +37,7 @@ SuperMesh* Assets::getModel (const char* name) {
     }
     
     SuperMesh* result = loadModel(name, nullptr, 0);
+    if (result == nullptr) throw (AssetLoadingException() << "can't load model " << name);
     
     superMeshes.push_back(make_pair(string(name), result));
     
