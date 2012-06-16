@@ -14,7 +14,10 @@ for lib in libs:
 		print lib + ' not found!';
 		Exit(1)
 
+
+
 env = conf.Finish()
+env.MergeFlags(env.ParseFlags("-std=c++0x"))
 env.Append(RPATH = './')
 env.SharedLibrary('bin/engine', Glob('src/*.cc') + Glob('src/*.c'),LIBS=libs)
 

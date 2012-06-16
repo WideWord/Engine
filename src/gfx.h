@@ -119,6 +119,17 @@ namespace quby {
         void checkAddParam(MaterialParam* mp);
         unsigned shader;
 	};
+	class Mesh;
+	
+	class ENGINE_API SuperMesh {
+    public:
+        SuperMesh();
+	    std::vector<Mesh*> meshes;
+	    void bake();
+	    const float& radius;
+	private:
+	    float _radius;
+	};
 	
 	class ENGINE_API Mesh {
     private:
@@ -138,16 +149,14 @@ namespace quby {
 	
 	class ENGINE_API MeshRenderer : public Component {
 	public:
-		MeshRenderer(GameObject* go);
+		MeshRenderer(GameObject* go, SuperMesh* _mesh);
 		//~MeshRenderer();
-		std::vector<Mesh*> meshes;
+		SuperMesh* mesh;
 		void update();
-	    void bake();
-	    const float& radius;
-	private:
-	    float _radius;
+	    
+	
 	};
-	GameObject* ENGINE_API loadModel(Scene* scn, const char* filename,Material** mats, unsigned mats_size);
+	SuperMesh* ENGINE_API loadModel(const char* filename,Material** mats, unsigned mats_size);
 	
 	class ENGINE_API Camera : public Component {
 	public:
