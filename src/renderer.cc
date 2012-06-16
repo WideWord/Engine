@@ -129,7 +129,7 @@ void Renderer::render () {
 					
 				
 		
-		for(std::vector<Mesh*>::iterator i = meshRenderer->meshes.begin(); i != meshRenderer->meshes.end(); ++i) {
+		for(std::vector<Mesh*>::iterator i = meshRenderer->mesh->meshes.begin(); i != meshRenderer->mesh->meshes.end(); ++i) {
 			Mesh* mesh = *i;
 			
 			unsigned curShader;

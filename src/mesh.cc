@@ -47,7 +47,19 @@ Mesh::~Mesh () {
 }
 
 
-GameObject* ENGINE_API quby::loadModel(Scene* scn, const char* filename,Material** mats, unsigned mats_size) {
+SuperMesh::SuperMesh () : radius(_radius) {
+    
+}
+
+void SuperMesh::bake () {
+    _radius = 0;
+    for (std::vector<Mesh*>::iterator it = meshes.begin(); it != meshes.end(); ++it) {
+        if (_radius < (*it)->radius)_radius = (*it)->radius;
+    }
+}
+
+
+SuperMesh* ENGINE_API quby::loadModel(Scene* scn, const char* filename,Material** mats, unsigned mats_size) {
 	
 	
 	
@@ -55,9 +67,7 @@ GameObject* ENGINE_API quby::loadModel(Scene* scn, const char* filename,Material
 	
 	if (!scene) return nullptr;
 	
-	GameObject* res = new GameObject(scn);
-	new Transform(res);
-	MeshRenderer* meshRenderer = new MeshRenderer(res);
+	SuperMesh* res = new SuperMesh();
 	
 	
 	
@@ -123,8 +133,8 @@ GameObject* ENGINE_API quby::loadModel(Scene* scn, const char* filename,Material
 		
 		if (aimesh->mMaterialIndex < mats_size) mesh->material = mats[aimesh->mMaterialIndex];
 		
-		meshRenderer->meshes.push_back(mesh);
-		meshRenderer->bake();
+		res->meshes.push_back(mesh);
+		
 		
 		
 		delete mdata.coor;
@@ -132,7 +142,7 @@ GameObject* ENGINE_API quby::loadModel(Scene* scn, const char* filename,Material
 		delete mdata.tex;
 		
 	}
-	
+	res->bake();
 	return res;
 }
 
