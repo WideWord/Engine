@@ -2,13 +2,16 @@
 #define ASSETS_H
 
 #include "platform.h"
-
+#include "exception.h"
 
 
 namespace quby {
 
     class Texture2d;
     class SuperMesh;
+    
+    
+    class AssetLoadingException : public Exception {};
     
     
     class Assets {
