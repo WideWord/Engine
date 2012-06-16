@@ -16,4 +16,12 @@
 	#define nullptr __null
 #endif
 
+
+#include <string>
+#include <vector>
+#include <utility>
+#include <list>
+#include <iostream>
+
+
 #endif

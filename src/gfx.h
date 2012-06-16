@@ -3,8 +3,6 @@
 #include "platform.h"
 #include "math3d.h"
 #include "scene.h"
-#include <vector>
-#include <string>
 
 
 namespace quby {
