@@ -7,6 +7,14 @@
 using namespace quby;
 using namespace std;
 
+AssetLoadingException::AssetLoadingException(const char* _filename): filename(_filename) {
+    AssetLoadingException& t = *this;
+    t << "can't load model " << filename;
+    
+}
+AssetLoadingException::~AssetLoadingException () throw() {}
+
+
 Texture2d* Assets::getTexture2d (const char* name) {
     string filename(name);
     
@@ -37,7 +45,7 @@ SuperMesh* Assets::getModel (const char* name) {
     }
     
     SuperMesh* result = loadModel(name, nullptr, 0);
-    if (result == nullptr) throw (AssetLoadingException() << "can't load model " << name);
+    if (result == nullptr) throw AssetLoadingException(name);
     
     superMeshes.push_back(make_pair(string(name), result));
     

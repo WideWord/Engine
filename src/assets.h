@@ -11,7 +11,12 @@ namespace quby {
     class SuperMesh;
     
     
-    class AssetLoadingException : public Exception {};
+    class AssetLoadingException : public Exception {
+    public: 
+        AssetLoadingException(const char* filename);
+        std::string filename;
+        virtual ~AssetLoadingException() throw ();
+    };
     
     
     class Assets {
