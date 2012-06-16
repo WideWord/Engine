@@ -13,8 +13,6 @@ using namespace quby;
 #include <aiScene.h>
 #include <aiMesh.h>
 
-
-
 Mesh::Mesh(MeshData& dat) : radius(_radius) {
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
